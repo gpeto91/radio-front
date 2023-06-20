@@ -1,0 +1,25 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+}
+
+.mic {
+  color: green;
+}
+
+.mic.disabled {
+  color: grey;
+}
+
+.mic.clickable:not(.mic.disabled) {
+  cursor: pointer;
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
