@@ -25,7 +25,7 @@ const UserForm: React.FC = () => {
     return (
       <form onSubmit={handleUser} className={styles.form}>
         <label className={styles['form-label']}>
-          Nome <sup>*</sup>:
+          Nome *:
           <input type="text" ref={userInput} />
           <span>Forneça um nome para adicionar músicas na playlist</span>
         </label>
