@@ -72,18 +72,18 @@ const Radio: React.FC = () => {
     }
   }, [])
 
-  useEffect(() => {
+  /* useEffect(() => {
     window.addEventListener("keypress", (evt) => {
       if (evt.code === "Space") {
         handleMuted();
       }
     });
-  }, []);
+  }, []); */
 
   return (
     <>
       <audio
-        src="http://18.190.113.67:8000/stream"
+        src="http://18.190.113.67:7000/stream"
         autoPlay
         onCanPlay={() => setCanPlay(true)}
         onPlaying={() => setPlaying(true)}
