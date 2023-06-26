@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import {Helmet} from "react-helmet";
 import {
   BsMic,
   BsFillMicFill,
@@ -82,6 +83,9 @@ const Radio: React.FC = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{playing ? `Rádio Guarani - Tocando: ${artist} - ${title}` : `Rádio Guarani`}</title>
+      </Helmet>
       <audio
         src="http://18.190.113.67:7000/stream"
         autoPlay
