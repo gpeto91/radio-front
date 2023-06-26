@@ -11,6 +11,9 @@ import {
 
 import styles from "./radio.module.css";
 import { socket } from "../../socket";
+import { DEV_URL } from "../../services/api";
+import { toast } from "react-toastify";
+import useLocalStorage from "use-local-storage";
 
 type NewTrackType = {
   user: string;
@@ -31,6 +34,19 @@ const Radio: React.FC = () => {
   const [title, setTitle] = useState<string>("");
   const [artist, setArtist] = useState<string>("");
 
+  const [pageIsFocused, setPageIsFocused] = useState<boolean>(true);
+  const [notificationGranted, setNotificationGranted] = useState<boolean>();
+
+  const [socketId, setSocketId] = useLocalStorage("socketId", "");
+
+  const onFocus = () => {
+    setPageIsFocused(true);
+  }
+
+  const onBlur = () => {
+    setPageIsFocused(false);
+  }
+
   const handlePlay = () => {
     if (canPlay) {
       setPlaying(true);
@@ -41,10 +57,38 @@ const Radio: React.FC = () => {
     setMuted((state) => !state);
   }
 
-  function handleNewTrack(track: NewTrackType) {
+  const handleNewTrack = (track: NewTrackType) => {
     setSender(track.user);
     setTitle(track.metadata.title);
     setArtist(track.metadata.artist);
+  }
+
+  const onQueued = (message: string) => {
+    if (pageIsFocused || !notificationGranted) {
+      toast.success(message, { pauseOnFocusLoss: true, autoClose: false });
+    } else {
+      if (notificationGranted) {
+        const notification = new Notification("Sucesso!", { body: message });
+
+        setTimeout(() => {
+          notification.close();
+        }, 5*1000);
+      }
+    }
+  }
+
+  const onQueuedError = (message: string) => {
+    if (pageIsFocused || !notificationGranted) {
+      toast.error(message, { pauseOnFocusLoss: true, autoClose: false });
+    } else {
+      if (notificationGranted) {
+        const notification = new Notification("Ops!", { body: message });
+
+        setTimeout(() => {
+          notification.close();
+        }, 5*1000);
+      }
+    }
   }
 
   useEffect(() => {
@@ -67,11 +111,36 @@ const Radio: React.FC = () => {
 
   useEffect(() => {
     socket.on("new-track", handleNewTrack);
+    socket.on("queued", onQueued);
+    socket.on("queued-error", onQueuedError);
+    socket.on("socket-id", (id: string) => setSocketId(id));
 
     return () => {
       socket.off("new-track", handleNewTrack);
+      socket.off("queued", onQueued);
+      socket.off("queued-error", onQueuedError);
     }
   }, [])
+
+  useEffect(() => {
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("blur", onBlur);
+
+    if (Notification.permission === "granted") {
+      setNotificationGranted(true);
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission()
+        .then((permission) => {
+          if (permission === "granted") setNotificationGranted(true)
+          else setNotificationGranted(false);
+        })
+    }
+
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("blur", onBlur);
+    }
+  }, []);
 
   /* useEffect(() => {
     window.addEventListener("keypress", (evt) => {
@@ -86,8 +155,9 @@ const Radio: React.FC = () => {
       <Helmet>
         <title>{playing ? `Rádio Guarani - Tocando: ${artist} - ${title}` : `Rádio Guarani`}</title>
       </Helmet>
+
       <audio
-        src="http://18.190.113.67:7000/stream"
+        src={`${DEV_URL}/stream`}
         autoPlay
         onCanPlay={() => setCanPlay(true)}
         onPlaying={() => setPlaying(true)}

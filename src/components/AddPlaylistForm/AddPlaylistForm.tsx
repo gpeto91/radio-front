@@ -3,7 +3,7 @@ import { FormEvent, useRef, useState } from "react";
 import { api } from "../../services/api";
 
 import styles from "./add-playlist-form.module.css";
-import { toast } from "react-toastify";
+import { ToastItem, toast } from "react-toastify";
 import axios from "axios";
 import useLocalStorage from "use-local-storage";
 
@@ -13,6 +13,7 @@ const AddPlaylistForm = () => {
   const titleInput = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [user] = useLocalStorage("user", "");
+  const [socketId] = useLocalStorage("socketId", "");
 
   const handleSendUrl = async (evt: FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
@@ -41,8 +42,27 @@ const AddPlaylistForm = () => {
       return;
     }
 
+    if (!socketId) {
+      toast.warn("Houve um problema com o socket", { toastId: "socketWarn" });
+
+      toast.onChange((payload: ToastItem) => {
+        switch (payload.status) {
+          case "removed":
+            if (payload.id === "socketWarn") {
+              window.location.reload();
+            }
+
+            break;
+          default:
+            break;
+        }
+      });
+
+      return;
+    }
+
     try {
-      const result = await api.post<{ message: string }>("/insert", { url, user, title, artist });
+      const result = await api.post<{ message: string }>("/insert", { url, user, title, artist, socketId });
       setLoading(false);
 
       if (urlInput.current) {
@@ -57,7 +77,7 @@ const AddPlaylistForm = () => {
         titleInput.current.value = "";
       }
 
-      toast.success(result.data.message);
+      toast.success(result.data.message, { autoClose: 5000, pauseOnFocusLoss: false, pauseOnHover: false });
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response) {
@@ -88,7 +108,7 @@ const AddPlaylistForm = () => {
         </label>
       </div>
 
-      <div style={{display: "flex", alignItems: "flex-end", gap: 10, justifyContent: "center", width: "100%"}}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 10, justifyContent: "center", width: "100%" }}>
         <label className={styles['form-label']}>
           Link do YouTube *:
           <input type="text" ref={urlInput} />
