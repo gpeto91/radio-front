@@ -2,13 +2,13 @@ import useLocalStorage from "use-local-storage";
 
 import { Theme, ToastContainer } from "react-toastify";
 
-import { Menu } from "./components/Menu/Menu"
-import { Page } from "./components/Page/Page"
+import { Menu } from "./components/Menu/Menu";
+import { Page } from "./components/Page/Page";
 import { UserForm } from "./components/UserForm/UserForm";
 import { Radio } from "./components/Radio/Radio";
 import { AddPlaylistForm } from "./components/AddPlaylistForm/AddPlaylistForm";
 
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { InfoMessage } from "./components/InfoMessage/InfoMessage";
 
 function App() {
@@ -21,9 +21,15 @@ function App() {
       <Page>
         <Menu />
 
-        <InfoMessage />
-
-        <div style={{ display: "flex", flexDirection: "column", height: "calc(100% - 50px)", padding: "0 15px", paddingTop: 60 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "calc(100% - 50px)",
+            padding: "0 15px",
+            paddingTop: 60,
+          }}
+        >
           <h1 className="title">Guarani Collab Radio</h1>
 
           {!user && <UserForm />}
@@ -32,7 +38,6 @@ function App() {
 
           {user && <AddPlaylistForm />}
         </div>
-
       </Page>
 
       <ToastContainer
@@ -43,7 +48,7 @@ function App() {
         theme={theme as Theme}
       />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
