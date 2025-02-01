@@ -9,7 +9,6 @@ import { Radio } from "./components/Radio/Radio";
 import { AddPlaylistForm } from "./components/AddPlaylistForm/AddPlaylistForm";
 
 import "react-toastify/dist/ReactToastify.css";
-import { InfoMessage } from "./components/InfoMessage/InfoMessage";
 
 function App() {
   const defaultDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
