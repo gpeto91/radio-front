@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 import {
@@ -37,7 +38,7 @@ const Radio: React.FC = () => {
   const [pageIsFocused, setPageIsFocused] = useState<boolean>(true);
   const [notificationGranted, setNotificationGranted] = useState<boolean>();
 
-  const [socketId, setSocketId] = useLocalStorage("socketId", "");
+  const [, setSocketId] = useLocalStorage("socketId", "");
 
   const onFocus = () => {
     setPageIsFocused(true);
