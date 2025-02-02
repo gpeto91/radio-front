@@ -23,3 +23,17 @@
   align-items: center;
   margin-top: 20px;
 }
+
+.spin {
+  animation: spin 1s linear infinite;
+  color: green;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

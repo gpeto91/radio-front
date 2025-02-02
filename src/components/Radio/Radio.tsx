@@ -9,6 +9,7 @@ import {
   BsFillVolumeOffFill,
   BsFillVolumeUpFill,
 } from "react-icons/bs";
+import { CgSpinner } from "react-icons/cg";
 
 import styles from "./radio.module.css";
 import { socket } from "../../socket";
@@ -29,7 +30,9 @@ const Radio: React.FC = () => {
   const [playing, setPlaying] = useState<boolean>(false);
   const [volume, setVolume] = useState<number>(0.1);
   const [muted, setMuted] = useState<boolean>(false);
+  const [playClicked, setPlayClicked] = useState<boolean>(false);
   const [canPlay, setCanPlay] = useState<boolean>(false);
+  const [loadingAudio, setLoadingAudio] = useState<boolean>(false);
 
   const [sender, setSender] = useState<string>("");
   const [title, setTitle] = useState<string>("");
@@ -49,9 +52,8 @@ const Radio: React.FC = () => {
   };
 
   const handlePlay = () => {
-    if (canPlay) {
-      setPlaying(true);
-    }
+    setPlayClicked(true);
+    setLoadingAudio(true);
   };
 
   const handleMuted = () => {
@@ -93,16 +95,17 @@ const Radio: React.FC = () => {
   };
 
   useEffect(() => {
-    if (canPlay && playing) {
+    if (canPlay && playClicked) {
       audio.current?.play();
+      setPlaying(true);
     }
-  }, [canPlay, playing]);
+  }, [canPlay, playClicked]);
 
   useEffect(() => {
-    if (audio.current) {
+    if (audio.current && canPlay) {
       audio.current.volume = volume;
     }
-  }, [audio, volume]);
+  }, [audio, volume, canPlay]);
 
   useEffect(() => {
     if (audio.current) {
@@ -160,15 +163,17 @@ const Radio: React.FC = () => {
         </title>
       </Helmet>
 
-      <audio
+      {playClicked && (
+        <audio
         src={`${PROD_URL}/stream`}
-        autoPlay
-        onCanPlay={() => setCanPlay(true)}
-        onPlaying={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onAbort={() => setPlaying(false)}
-        ref={audio}
-      />
+          autoPlay
+          onCanPlay={() => setCanPlay(true)}
+          onPlaying={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onAbort={() => setPlaying(false)}
+          ref={audio}
+        />
+      )}
 
       <div className={styles.wrapper}>
         {playing ? (
@@ -176,8 +181,8 @@ const Radio: React.FC = () => {
         ) : (
           <BsMic
             size={140}
-            className={`${styles.mic} ${!canPlay && styles.disabled} ${
-              styles.clickable
+            className={`${styles.mic} ${styles.clickable} ${
+              loadingAudio && styles.disabled
             }`}
             onClick={() => handlePlay()}
           />
@@ -203,6 +208,25 @@ const Radio: React.FC = () => {
               onChange={(evt) => setVolume(Number(evt.currentTarget.value))}
             />
           </div>
+        )}
+
+        {!loadingAudio && !canPlay && (
+          <p style={{ marginTop: 20 }}>
+            Clique no microfone para começar a ouvir a rádio.
+          </p>
+        )}
+
+        {loadingAudio && !canPlay && (
+          <p
+            style={{
+              marginTop: 20,
+              display: "flex",
+              alignItems: "flex-end",
+              gap: 10,
+            }}
+          >
+            <CgSpinner className={styles.spin} /> Carregando stream...
+          </p>
         )}
 
         {sender && playing && (
